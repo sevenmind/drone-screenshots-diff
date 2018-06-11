@@ -1,29 +1,54 @@
-# Drone Plugin for Pronto
+# Drone Plugin for Screenshots Diff
 
-[Pronto](https://github.com/prontolabs/pronto) is a tool for "quick automated code review of your changes" allowing to comment linter warnings on commits or pull requests in Github, Gitlab or Bitbucket.
-This drone plugin makes it as simple as
+Imagine you are running acceptance tests producing a series of screenshots of your website, iOS app or whatever. Once you're implementing new features or fixes you're creating new branches accordingly and use pull requests to merge them in after your collegues had a look on it. 
 
-    lint:
-      when:
-        event: [pull_request]
-      image: 7mind/drone-pronto
-      formatters: [bitbucket_pr text]    
-      runner: [scss slim]
+Wouldn't it be nice to have the screenshots showing your work attached to your *pull request* without doing a manual job? This is exactly what this plugin is for. Under the hood the screenshots are copied to Google File Storage on each commit and once you create your PR, the files are compared against a reference branch. Newly added files and changed images are added to the Bitbucket Pull Request.
 
-to automate your review. 
 
-A list of supported runners can be found (here)[https://github.com/prontolabs/pronto#runners]. Additional parameters such as BITBUCKET_USERNAME should be specified using a .pronto.yml configuration file.
+    screenshots:
+      image: 7mind/drone-screenshots-diff:latest
+      google_auth_key: <service-account-token>
+      project: <google-project-id>
+      bucket: <exiting-google-file-storage-bucket>
+      folder: <subfolder-in-bucket>
+      branch: "${DRONE_COMMIT_BRANCH}"
+      ref: develop
+      source: <source-image-directory>
+      pr: $CI_PULL_REQUEST
+      bitbucket_user: <email>
+      bitbucket_password: <password>
 
 ## Parameter Reference
 
-```formatters```
-list, available items: github, github_status, github_pr, github_pr_review, gitlab, bitbucket, bitbucket_pr, bitbucket_server_pr, json, checkstyle, text
+```google_auth_key```
+Base64 encoded json key of a service account with write access to the *bucket* located in the *project*.
 
-```runner```
-list, any pronto runner name (leaving out the *pronto-* prefix)
+```project```
+Google project id
 
-```commit```
-Commit for the diff, Default: master
+```bucket```
+Goole File Storage bucket name
 
-```args```
-Any additonal args to be passed to prone
+```folder```
+Subfolder in the *bucket*.
+
+```branch```
+Current commit branch.
+
+```ref```
+Reference branch for comparison. Eg if you follow gitflow this is probably `develop`.
+
+```source```
+Source directory containing all the images to upload.
+
+```pr```
+Current Pull Request Id. Eg. $CI_PULL_REQUEST
+
+```bitbucket_user```
+Bitbucket user email
+
+```bitbucket_password```
+Bitbucket user password
+
+
+
