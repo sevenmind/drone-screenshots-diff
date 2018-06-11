@@ -12,7 +12,7 @@ upload_files () {
   
   TARGET_PATH=$PLUGIN_BUCKET/$PLUGIN_FOLDER/$PLUGIN_BRANCH
   
-  gsutil -m cp -a public-read $DRONE_WORKSPACE/$PLUGIN_SOURCE/*.{png,jpg} gs://$TARGET_PATH  
+  gsutil -m cp -a public-read $DRONE_WORKSPACE/$PLUGIN_SOURCE/* gs://$TARGET_PATH  
 }
 
 # check if we should compare now (only for PRs)
@@ -29,14 +29,14 @@ download_ref_files () {
 
   REF_PATH=$PLUGIN_BUCKET/$PLUGIN_FOLDER/$PLUGIN_REF  
   mkdir -p /compare/b
-  gsutil -m cp gs://$REF_PATH/*.{png,jpg} /compare/b
+  gsutil -m cp gs://$REF_PATH/* /compare/b
 }
 
 # compare files
 compare () {
 
   mkdir -p /compare/a
-  cp $DRONE_WORKSPACE/$PLUGIN_SOURCE/*.{png,jpg} /compare/a
+  cp $DRONE_WORKSPACE/$PLUGIN_SOURCE/* /compare/a
 
   # compare directories
   cd /compare
