@@ -18,7 +18,7 @@ upload_files () {
 # check if we should compare now (only for PRs)
 fetch_pr_id () {
 
-  PR_ID=$(curl -s "https://bitbucket.org/!api/2.0/repositories/$DRONE_REPO_OWNER/$DRONE_REPO_NAME/pullrequests?state=OPEN" \
+  PR_ID=$(curl -s "https://bitbucket.org/!api/2.0/repositories/${DRONE_REPO}/pullrequests?state=OPEN" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id')
 
@@ -67,7 +67,7 @@ compare () {
 # post comment on bitbucket
 bitbucket_comment () {
 
-  curl -X "POST" "https://bitbucket.org/!api/1.0/repositories/$DRONE_REPO_OWNER/$DRONE_REPO_NAME/pullrequests/$PR_ID/comments/" \
+  curl -X "POST" "https://bitbucket.org/!api/1.0/repositories/${DRONE_REPO}/pullrequests/$PR_ID/comments/" \
        -H 'Content-Type: application/json; charset=utf-8' \
        -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" \
        -d "{\"content\": \"$CONTENT\"}"

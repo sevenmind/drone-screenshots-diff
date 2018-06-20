@@ -14,7 +14,6 @@ Wouldn't it be nice to have the screenshots showing your work attached to your *
       branch: "${DRONE_COMMIT_BRANCH}"
       ref: develop
       source: <source-image-directory>
-      pr: $CI_PULL_REQUEST
       bitbucket_user: <email>
       bitbucket_password: <password>
 
@@ -41,8 +40,6 @@ Reference branch for comparison. Eg if you follow gitflow this is probably `deve
 ```source```
 Source directory containing all the images to upload.
 
-```pr```
-Current Pull Request Id. Eg. $CI_PULL_REQUEST
 
 ```bitbucket_user```
 Bitbucket user email
