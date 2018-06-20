@@ -24,13 +24,11 @@ fetch_pr_id () {
      -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" \
      -o pullrequests.json
 
-  cat pullrequests.json
-
-  cat pullrequests.json | jq '.values[] | select(.source.branch.name == ${DRONE_COMMIT_BRANCH}) | .id'
-
-  PR_ID=$(cat pullrequests.json | jq '.values[] | select(.source.branch.name == ${DRONE_COMMIT_BRANCH}) | .id')
+  PR_ID=$(cat pullrequests.json | jq -r --arg BRANCH "$DRONE_COMMIT_BRANCH" '.values[] | select(.source.branch.name == $BRANCH) | .id')
 
   echo "pr id is: $PR_ID"
+
+  rm pullrequests.json
 
   if [[ -z "$PR_ID" ]]; then
      echo ">> No matching PR found for branch $DRONE_COMMIT_BRANCH, exiting gracefully!"
