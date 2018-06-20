@@ -9,17 +9,20 @@ authenticate () {
 
 # upload source images to google bucket
 upload_files () {
-  
+
   TARGET_PATH=$PLUGIN_BUCKET/$PLUGIN_FOLDER/$PLUGIN_BRANCH
-  
-  gsutil -m cp -a public-read $DRONE_WORKSPACE/$PLUGIN_SOURCE/* gs://$TARGET_PATH  
+
+  gsutil -m cp -a public-read $DRONE_WORKSPACE/$PLUGIN_SOURCE/* gs://$TARGET_PATH
 }
 
 # check if we should compare now (only for PRs)
 fetch_pr_id () {
 
+  export
+
   PR_ID=$(curl -s "https://bitbucket.org/!api/2.0/repositories/${DRONE_REPO}/pullrequests?state=OPEN" \
      -H 'Content-Type: application/json; charset=utf-8' \
+     -v
      -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id')
 
   echo "pr id is: $PR_ID"
@@ -27,13 +30,13 @@ fetch_pr_id () {
   if [[ -z "$PR_ID" ]]; then
      echo ">> No matching PR found for branch $DRONE_COMMIT_BRANCH, exiting gracefully!"
      exit 0
-  fi 
+  fi
 }
 
 # download reference images
 download_ref_files () {
 
-  REF_PATH=$PLUGIN_BUCKET/$PLUGIN_FOLDER/$PLUGIN_REF  
+  REF_PATH=$PLUGIN_BUCKET/$PLUGIN_FOLDER/$PLUGIN_REF
   mkdir -p /compare/b
   gsutil -m cp gs://$REF_PATH/* /compare/b
 }
@@ -60,7 +63,7 @@ compare () {
   while read line
   do
     echo "$TARGET_PATH/$match"
-    CONTENT="$CONTENT \n ![](https://storage.googleapis.com/$TARGET_PATH/$line)"  
+    CONTENT="$CONTENT \n ![](https://storage.googleapis.com/$TARGET_PATH/$line)"
   done <<< $(diff -rq a/ b/ | grep 'differ' | awk '{print $4}') | cut -c 3-
 }
 
