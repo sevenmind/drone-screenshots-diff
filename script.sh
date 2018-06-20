@@ -16,10 +16,16 @@ upload_files () {
 }
 
 # check if we should compare now (only for PRs)
-check_pr () {
+fetch_pr_id () {
 
-  if [[ -z "$PLUGIN_PR" ]]; then
-     echo ">> PR not set, exiting gracefully!"
+  PR_ID=$(curl -s "https://bitbucket.org/!api/2.0/repositories/$DRONE_REPO_OWNER/$DRONE_REPO_NAME/pullrequests?state=OPEN" \
+     -H 'Content-Type: application/json; charset=utf-8' \
+     -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id')
+
+  echo "pr id is: $PR_ID"
+
+  if [[ -z "$PR_ID" ]]; then
+     echo ">> No matching PR found for branch $DRONE_COMMIT_BRANCH, exiting gracefully!"
      exit 0
   fi 
 }
@@ -61,7 +67,7 @@ compare () {
 # post comment on bitbucket
 bitbucket_comment () {
 
-  curl -X "POST" "https://bitbucket.org/!api/1.0/repositories/sevenmind/7mind-www-v2/pullrequests/$PLUGIN_PR/comments/" \
+  curl -X "POST" "https://bitbucket.org/!api/1.0/repositories/$DRONE_REPO_OWNER/$DRONE_REPO_NAME/pullrequests/$PR_ID/comments/" \
        -H 'Content-Type: application/json; charset=utf-8' \
        -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" \
        -d "{\"content\": \"$CONTENT\"}"
@@ -71,7 +77,7 @@ bitbucket_comment () {
 authenticate
 upload_files
 
-check_pr
+fetch_pr_id
 
 download_ref_files
 compare
