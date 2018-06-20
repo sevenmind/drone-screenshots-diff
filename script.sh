@@ -26,9 +26,9 @@ fetch_pr_id () {
 
   cat pullrequests.json
 
-  cat pullrequests.json | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id'
+  cat pullrequests.json | jq '.values[] | select(.source.branch.name == ${DRONE_COMMIT_BRANCH}) | .id'
 
-  export PR_ID=`cat pullrequests.json | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id'`
+  PR_ID=$(cat pullrequests.json | jq '.values[] | select(.source.branch.name == ${DRONE_COMMIT_BRANCH}) | .id')
 
   echo "pr id is: $PR_ID"
 
