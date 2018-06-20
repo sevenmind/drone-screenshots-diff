@@ -58,16 +58,16 @@ compare () {
   echo ">> new files"
   while read line
   do
-    echo "gs://$TARGET_PATH/$line"
+    echo $line
     CONTENT="$CONTENT \n ![](https://storage.googleapis.com/$TARGET_PATH/$line)"
   done <<< $(diff -rq a/ b/ | grep "Only in a/:" | awk '{print $4}')
 
   echo ">> updated files"
   while read line
   do
-    echo "$TARGET_PATH/$match"
+    echo $line
     CONTENT="$CONTENT \n ![](https://storage.googleapis.com/$TARGET_PATH/$line)"
-  done <<< $(diff -rq a/ b/ | grep 'differ' | awk '{print $4}') | cut -c 3-
+  done <<< $(diff -rq a/ b/ | grep 'differ' | awk '{print $4}' | cut -c 3-)
 }
 
 # post comment on bitbucket
