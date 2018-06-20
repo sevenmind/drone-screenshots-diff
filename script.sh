@@ -18,12 +18,15 @@ upload_files () {
 # check if we should compare now (only for PRs)
 fetch_pr_id () {
 
-  export
-
-  PR_ID=$(curl -s "https://bitbucket.org/!api/2.0/repositories/${DRONE_REPO}/pullrequests?state=OPEN" \
+  curl -s "https://bitbucket.org/!api/2.0/repositories/${DRONE_REPO}/pullrequests?state=OPEN" \
      -H 'Content-Type: application/json; charset=utf-8' \
      -v \
-     -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id')
+     -u "$PLUGIN_BITBUCKET_USER:$PLUGIN_BITBUCKET_PASSWORD" \
+     -o pullrequests.json
+
+  cat pullrequests.json
+
+  PR_ID=$(cat pullrequests.json | jq '.values[] | select(.source.branch.name == "${PLUGIN_BRANCH}") | .id')
 
   echo "pr id is: $PR_ID"
 
